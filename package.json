@@ -1,6 +1,6 @@
 {
   "name": "sauromjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Microservice messaging communicator using amqp",
   "main": "index.js",
   "scripts": {
