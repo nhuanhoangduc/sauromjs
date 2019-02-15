@@ -1,0 +1,33 @@
+{
+  "name": "sauromjs",
+  "version": "1.0.0",
+  "description": "Microservice messaging communicator using amqp",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nhuanhoangduc/sauromjs.git"
+  },
+  "keywords": [
+    "rabbitmq",
+    "microservice",
+    "messaging",
+    "message",
+    "communicator",
+    "communication",
+    "amqp",
+    "rest"
+  ],
+  "author": "Nhuan Hoang Duc",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nhuanhoangduc/sauromjs/issues"
+  },
+  "homepage": "https://github.com/nhuanhoangduc/sauromjs#readme",
+  "dependencies": {
+    "amqplib": "^0.5.3",
+    "hyperid": "^2.0.2"
+  }
+}
