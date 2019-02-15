@@ -3,7 +3,7 @@ const UserModel = require('./UserModel');
 
 
 const Service = new Saurom.Service({
-    instanceId: 'UserRepositoryID', // default: auto generate an uniq id
+    instanceId: 'ServiceInstanceID', // default: auto generate an uniq id
     repository: 'UserRepository', // required
     mqUrl: 'amqp://localhost', // default 'amqp://localhost'
 });

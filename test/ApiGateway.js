@@ -4,7 +4,7 @@ const app = express();
 
 
 const Request = new Saurom.Request({
-    instanceId: '123123123', // default: auto generate an uniq id
+    instanceId: 'ApiInstantceId', // default: auto generate an uniq id
     mqUrl: 'amqp://localhost', // default 'amqp://localhost'
     timeout: 2000, // Request timeout, default 5000
 });
