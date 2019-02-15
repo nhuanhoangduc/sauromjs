@@ -7,7 +7,7 @@
 See example at: https://github.com/nhuanhoangduc/sauromjs/tree/master/test
 
 ### 1. ApiGateway.js - Make request to UserRepository microservice
-```javascript=
+```javascript
 // --- Step 1: Import sauromjs package
 const Saurom = require('sauromjs');
 const express = require('express')
@@ -69,7 +69,7 @@ Request.connect()
 
 ### 2. UserRepository.js - Receive request message and send response message
 
-```javascript=
+```javascript
 // --- Step 1: Import sauromjs package
 const Saurom = require('sauromjs');
 const UserModel = require('./UserModel');
