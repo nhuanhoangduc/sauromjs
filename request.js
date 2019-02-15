@@ -74,9 +74,6 @@ class Request {
 
             // Create topic by using instanceId
             await listenerChannel.assertQueue(responseQueueName);
-            
-            // Remove message from topic
-            await listenerChannel.purgeQueue(responseQueueName);
 
             // Listen response messages from queue
             listenerChannel.consume(responseQueueName, this.responseMessageHandler.bind(this), { ackAll: true });
