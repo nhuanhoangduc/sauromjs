@@ -2,134 +2,196 @@
 
     npm install sauromjs
     
+# API
+### Request
+
+Creating a request object
+```javascript
+    const request = new Saurom.Request({
+        instanceId: 'id1',            // Default: auto generate an uniq id. Each nodejs instance must have an uniq instance id, 
+        mqUrl: 'amqp://localhost',    // Default 'amqp://localhost'
+        timeout: 2000,                // Default 5000. Request timeout
+    });
+```
+
+Connect to message queue
+```javascript
+    request.connect()
+        .then()
+        .catch();
+```
+
+Call a repository's service
+```javascript
+    request.call(repositoryName: string, serviceName: string, body: Object);
+```
+
+Example
+```javascript
+    const request = new Saurom.Request();
+    
+    request
+        .connect()
+        .then(() => {
+            request
+                .call(
+                    'MathRepository',
+                    'sqrt',
+                    {
+                        number: 36,
+                    }
+                )
+                .then((response) => {})
+                .catch((error) => {});
+        });
+```
+
+
+### Service
+
+Creating a service object
+```javascript
+    const service = new Saurom.Service({
+        repository: 'MathRepository',   // required
+        instanceId: 'id2',              // default: auto generate an uniq id
+        mqUrl: 'amqp://localhost',      // default 'amqp://localhost'. Queue url, using amqplib package to connect message queue. Please see http://www.squaremobius.net/amqp.node/channel_api.html#connect for detail           
+    });
+```
+
+Connect to message queue
+```javascript
+    service.connect()
+        .then()
+        .catch();
+```
+
+Define service
+```javascript
+    service.register(serviceName: string, function(req, res) {
+        // req: object - body was sent by request object
+        // res: object
+        //     - res.success(anyValue) : Send success response
+        //     - res.error(Error object): Send error response
+    });
+```
+
+Example
+```javascript
+    const service = new Saurom.Service({
+        repository: 'MathRepository', // required
+    });
+    
+    service.register('sqrt', (req, res) => {
+        const { number } = req;
+
+        if (typeof number !== 'number') {
+            res.error(new Error('Not a number'));
+            return;
+        }
+
+        res.success(Math.sqrt(number));
+    });
+            
+    service.connect();
+```
+
+
 # Example
 
-See example at: https://github.com/nhuanhoangduc/sauromjs/tree/master/test
+See more example at: https://github.com/nhuanhoangduc/sauromjs/tree/master/test
 
-### 1. ApiGateway.js - Make request to UserRepository microservice
+### 1. Request.js - Make request to UserRepository microservice
 ```javascript
 // --- Step 1: Import sauromjs package
 const Saurom = require('sauromjs');
-const express = require('express')
-const app = express();
+
 
 // --- Step 2: Create a Request object
-const Request = new Saurom.Request({
-    instanceId: 'ApiInstantceId', // default: auto generate an uniq id
-    mqUrl: 'amqp://localhost', // default 'amqp://localhost'
-    timeout: 2000, // Request timeout, default 5000
-});
+const Request = new Saurom.Request();
 
 
 // --- Step 3: connect to message queue
 Request.connect()
-    .then(() => { // Connected
+    .then(async () => { // Connected
     
-    
-        /**
-         * Step 4: Make request to repository with given service name and params
-         * Request.call(repositoryName: string, serviceName: string, body: object)
-         * Request.call return a promise
-         */
+        // --- Step 4: Make request to repository with given service name and params
          
-         
-        app.get('/users', async (req, res, next) => {
-            try {
-                const users = await Request.call(
-                    'UserRepository', // Repository name
-                    'getUsers', // Service name
-                );
-    
-                res.send(users);
-            } catch (error) {
-                next(error);
-            }
-        });
+        try {
+            // Call service 'sqrt' of MathRepository
+            const sqrt = await Request.call(
+                'MathRepository',
+                'sqrt',
+                {
+                    number: 36,
+                }
+            );
 
-        app.get('/users/create', async (req, res) => {
-            try {
-                const newUser = await Request.call(
-                    'UserRepository', // Repository name
-                    'createUser', // Service name
-                    {
-                        name: 'Nhuan',
-                        email: 'nhuan.hoangduc@outlook.com',
-                    }
-                );
-                res.send(newUser);
-            } catch (error) {
-                next(error);
-            }
-        });
+            // Call service 'pow' of MathRepository
+            const pow = await Request.call(
+                'MathRepository',
+                'pow',
+                {
+                    baseNumber: 6,
+                    exponent: 2
+                }
+            );
 
-        app.listen(3000, () => console.log(`Example app listening on port 3000`))
+            console.log(sqrt); // 6
+            console.log(pow); // 36
+        } catch (error) {
+            console.log(error);    
+        }
     })
-    .catch();
+    .catch((err) => {
+        console.log(err);
+    });
 ```
 
-### 2. UserRepository.js - Receive request message and send response message
+### 2. MathRepository.js - Receive request message and send response message
 
 ```javascript
 // --- Step 1: Import sauromjs package
 const Saurom = require('sauromjs');
-const UserModel = require('./UserModel');
 
 
 // --- Step 2: Create a Service object
 const Service = new Saurom.Service({
-    instanceId: 'ServiceInstanceID', // default: auto generate an uniq id
-    repository: 'UserRepository', // required
-    
-    // Queue url, using amqplib package to connect message queue. Please see http://www.squaremobius.net/amqp.node/channel_api.html#connect for detail
-    mqUrl: 'amqp://localhost', // default 'amqp://localhost'
+    repository: 'MathRepository', // required
 });
 
 
-// --- Step 3: connect to message queue
+// --- Step 3: Define services for repository MathRepository
+        
+// Service 'sqrt' of repository MathRepository
+Service.register('sqrt', (req, res) => {
+    const { number } = req;
+
+    if (typeof number !== 'number') {
+        res.error(new Error('Not a number'));
+        return;
+    }
+
+    res.success(Math.sqrt(number));
+});
+
+// Service 'pow' of repository MathRepository
+Service.register('pow', (req, res) => {
+    const { baseNumber, exponent } = req;
+
+    if (typeof baseNumber !== 'number') {
+        res.error(new Error('Not a number'));
+        return;
+    }
+
+
+    res.success(Math.pow(baseNumber, exponent));
+});
+
+
+// --- Step 4: connect to message queue
 Service.connect()
     .then(() => { // Connected
-    
-    
-        /**
-         * Step 4: Define services for repository UserRepository, defined above
-         * Service's callback:
-         *     - req: Object was sent by Request object
-         *     - res: {
-         *            success: function,
-         *            error: function,
-         *       }
-         */
-    
-    
-    
-        // Get users service
-        Service.register('getUsers', (req, res) => {
-            UserModel.find({}, function (err, users) {
-                if (err) {
-                    console.log(err);
-                    res.error(err);
-                    return;
-                }
-                res.success(users);
-            });
-        });
         
-
-        // Create new user service
-        Service.register('createUser', (req, res) => {
-            const { name, email } = req;
-
-            UserModel.create({
-                name: name,
-                email: email
-            }, function (err, user) {
-                if (err) {
-                    res.error(err);
-                    return;
-                }
-                res.success(user);
-            });
-        });
     })
     .catch((err) => {
         console.log(err);
