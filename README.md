@@ -3,6 +3,12 @@
     npm install sauromjs
     
 # API
+
+### Import package
+```javascript
+    const Saurom = require('sauromjs');
+```
+
 ### Request
 
 Creating a request object
