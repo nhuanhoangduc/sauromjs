@@ -42,18 +42,8 @@ class Service {
         this.services = {};
 
         // Close connection
-        process.on('exit', function (){
-            if (!this.connection) {
-                return;
-            }
-            this.connection.close();
-        });
-        process.on('uncaughtException', function (){
-            if (!this.connection) {
-                return;
-            }
-            this.connection.close();
-        });
+        process.on('exit', () => this.closeConnection());
+        process.on('uncaughtException', () => this.closeConnection());
     }
 
     // Callback format: (request, response) => {}
@@ -140,6 +130,18 @@ class Service {
             listenerChannel.consume(requestQueueName, this.requestMessageHandler.bind(this), { noAck: true });
         } catch (error) {
             throw error;
+        }
+    }
+
+    closeConnection() {
+        if (!this.connection) {
+            return;
+        }
+        
+        try {
+            this.connection.close();
+        } catch (error) {
+            
         }
     }
 }

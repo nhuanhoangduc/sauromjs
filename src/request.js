@@ -22,18 +22,8 @@ class Request {
         this.waitingRequestResponses = {};
 
         // Close connection
-        process.on('exit', function (){
-            if (!this.connection) {
-                return;
-            }
-            this.connection.close();
-        });
-        process.on('uncaughtException', function (){
-            if (!this.connection) {
-                return;
-            }
-            this.connection.close();
-        });
+        process.on('exit', () => this.closeConnection());
+        process.on('uncaughtException', () => this.closeConnection());
     }
 
     responseMessageHandler(msg) {
@@ -125,6 +115,18 @@ class Request {
                 reject(error);
             }
        });
+    }
+
+    closeConnection() {
+        if (!this.connection) {
+            return;
+        }
+        
+        try {
+            this.connection.close();
+        } catch (error) {
+            
+        }
     }
 }
 
